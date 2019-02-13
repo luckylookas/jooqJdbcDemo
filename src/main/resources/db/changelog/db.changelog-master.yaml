@@ -1,0 +1,75 @@
+databaseChangeLog:
+  - changeSet:
+      id: 1
+      author: lukas noll
+      changes:
+        - createTable:
+            tableName: policy
+            columns:
+              - column:
+                  name: id
+                  type: bigserial
+              - column:
+                  name: policy_number
+                  type: varchar(50)
+        - addUniqueConstraint:
+            columnNames: policy_number
+            constraintName: u_policy_policy_number
+            tableName: policy
+        - addPrimaryKey:
+            columnNames: id
+            constraintName: pk_policy
+            tableName: policy
+        - createTable:
+            tableName: account
+            columns:
+              - column:
+                  name: id
+                  type: bigserial
+              - column:
+                  name: account_number
+                  type: varchar(50)
+        - addUniqueConstraint:
+            columnNames: account_number
+            constraintName: u_account_account_number
+            tableName: account
+        - addPrimaryKey:
+            columnNames: id
+            constraintName: pk_account
+            tableName: account
+        - createTable:
+            tableName: account_to_policy
+            columns:
+              - column:
+                  name: id
+                  type: bigserial
+              - column:
+                  name: policy_id
+                  type: bigint
+              - column:
+                  name: account_id
+                  type: bigint
+        - addUniqueConstraint:
+            columnNames: policy_id, account_id
+            constraintName: u_account_to_policy_all
+            tableName: account_to_policy
+        - addPrimaryKey:
+            columnNames: id
+            constraintName: pk_account_to_policy
+            tableName: account_to_policy
+        - addForeignKeyConstraint:
+            baseColumnNames: policy_id
+            baseTableName: account_to_policy
+            onUpdate: NO ACTION
+            onDelete: CASCADE
+            constraintName: fk_account_to_policy_policy
+            referencedColumnNames: id
+            referencedTableName: policy
+        - addForeignKeyConstraint:
+            baseColumnNames: account_id
+            baseTableName: account_to_policy
+            onUpdate: NO ACTION
+            onDelete: CASCADE
+            constraintName: fk_account_to_policy_account
+            referencedColumnNames: id
+            referencedTableName: account

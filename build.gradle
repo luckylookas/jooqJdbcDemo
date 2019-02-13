@@ -1,0 +1,82 @@
+buildscript {
+    repositories {
+        mavenLocal()
+        mavenCentral()
+    }
+
+    dependencies {
+        classpath 'org.jooq:jooq-codegen:3.7.4'
+        classpath 'com.h2database:h2:1.4.177'
+    }
+}
+
+plugins {
+    id 'org.springframework.boot' version '2.1.2.RELEASE'
+    id 'java'
+    id 'nu.studer.jooq' version '3.0.3'
+}
+
+apply plugin: 'io.spring.dependency-management'
+
+group = 'com.nohibernate'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = '1.8'
+
+repositories {
+    mavenCentral()
+}
+
+/*
+jooq codeGen requires an active DB connection to generate Classes,
+so this task runs only when setting up or altering the database and not wanting to manipulate the generated sources.
+ */
+jooq {
+    version = '3.11.9'
+    edition = 'OSS'
+    sample(sourceSets.main) {
+        jdbc {
+            driver = 'org.postgresql.Driver'
+            url = 'jdbc:postgresql://localhost:5432/test_db'
+            user = 'postgres'
+            password = 'postgres'
+        }
+        generator {
+            name = 'org.jooq.codegen.DefaultGenerator'
+            strategy {
+                name = 'org.jooq.codegen.DefaultGeneratorStrategy'
+            }
+            database {
+                name = 'org.jooq.meta.postgres.PostgresDatabase'
+                inputSchema = 'public'
+            }
+            generate {
+                relations = true
+                deprecated = false
+                records = true
+                immutablePojos = true
+            }
+            target {
+                packageName = 'com.nohibernate.demo.jooq'
+                directory = 'src/main/java/'
+            }
+        }
+    }
+}
+
+dependencies {
+    jooqRuntime 'postgresql:postgresql:9.1-901.jdbc4'
+
+
+    implementation 'org.springframework.boot:spring-boot-starter-jdbc'
+    implementation 'org.springframework.boot:spring-boot-starter-jooq'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.liquibase:liquibase-core'
+
+
+    compileOnly 'org.projectlombok:lombok'
+    runtimeOnly 'org.postgresql:postgresql'
+
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation group: 'org.testcontainers', name: 'postgresql', version: '1.10.6'
+
+}

@@ -2,6 +2,7 @@ package com.nohibernate.demo;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -9,14 +10,22 @@ import java.util.List;
 @RestController
 @RequestMapping("/api")
 @RequiredArgsConstructor
+@Transactional
 public class DemoController {
 
     private final JooqRepository jooqRepository;
 
-    @PostMapping("/{policyNumber}/{accountNumber}")
+    @PostMapping("/fail/{policyNumber}")
+    public void createFail(@PathVariable("policyNumber") String policyNumber) {
+        jooqRepository.createUnsafePolicy(policyNumber);
+        jooqRepository.createUnsafePolicy(policyNumber);
+    }
+
+    @PostMapping("/assignments/{policyNumber}/{accountNumber}")
     public void create(@PathVariable("policyNumber") String policyNumber,
                        @PathVariable("accountNumber") String accountNumber) {
         jooqRepository.create(policyNumber, accountNumber);
+        jooqRepository.createUnsafePolicy(policyNumber);
     }
 
     @GetMapping(value = "/accounts/{policyNumber}",

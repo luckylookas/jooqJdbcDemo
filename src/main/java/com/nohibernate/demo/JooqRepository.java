@@ -6,20 +6,26 @@ import com.nohibernate.demo.jooq.tables.Policy;
 import lombok.RequiredArgsConstructor;
 import org.jooq.DSLContext;
 import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
-@Transactional
 public class JooqRepository {
 
     private final DSLContext queryBuilder;
 
-    public void create(String policyNumber, String accountNumber) {
+    public Long createUnsafePolicy(String policyNumber) {
+        return
+                queryBuilder.insertInto(Policy.POLICY)
+                        .columns(Policy.POLICY.POLICY_NUMBER)
+                        .values(policyNumber)
+                        .returning(Policy.POLICY.ID)
+                        .fetchOne().getId();
+    }
+
+        public void create(String policyNumber, String accountNumber) {
         com.nohibernate.demo.jooq.tables.records.PolicyRecord policy =
                 queryBuilder.insertInto(Policy.POLICY)
                 .columns(Policy.POLICY.POLICY_NUMBER)
